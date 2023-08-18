@@ -1,0 +1,28 @@
+<app-todo-quick-add></app-todo-quick-add>
+
+<div>
+  <h3>Filter Todos</h3>
+
+  <form [formGroup]="todoFilter">
+    <div>
+      <label for="title">Title:</label>
+      <input id="title" type="text" formControlName="title">
+    </div>
+    <div>
+      <label for="status">Completed:</label>
+      <select id="status" formControlName="status">
+        <option value="ALL">All</option>
+        <option value="COMPLETED">Completed</option>
+        <option value="NOT_COMPLETED">Not Completed</option>
+      </select>
+    </div>
+  </form>
+</div>
+
+<div>
+  <ul *ngFor="let todo of todos$ | async">
+    <li>
+      {{todo.title}} - <input type="checkbox" [checked]="todo.completed" (change)="toggleCompleted(todo)">
+    </li>
+  </ul>
+</div>
