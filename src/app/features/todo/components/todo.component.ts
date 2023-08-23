@@ -1,6 +1,6 @@
 import {Component} from '@angular/core';
 import {combineLatest, debounceTime, distinctUntilChanged, map, Observable, startWith} from "rxjs";
-import {Todo, TodoService} from "./todo.service";
+import {Todo, TodoService} from "../services/todo.service";
 import {FormControl, FormGroup} from "@angular/forms";
 
 

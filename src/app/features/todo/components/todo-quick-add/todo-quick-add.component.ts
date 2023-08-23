@@ -1,6 +1,6 @@
 import { Component } from '@angular/core';
 import {FormControl, FormGroup} from "@angular/forms";
-import {Todo, TodoService} from "../todo.service";
+import {Todo, TodoService} from "../../services/todo.service";
 
 @Component({
   selector: 'app-todo-quick-add',
