@@ -1,7 +1,8 @@
 import {Component} from '@angular/core';
 import {combineLatest, debounceTime, distinctUntilChanged, map, Observable, startWith} from "rxjs";
-import {Todo, TodoService} from "../services/todo.service";
+import {Todo, TodoService} from "../../../core/services/todo.service";
 import {FormControl, FormGroup} from "@angular/forms";
+import {ActivatedRoute} from "@angular/router";
 
 
 @Component({
@@ -16,7 +17,8 @@ export class TodoComponent {
     status: new FormControl<string>("NOT_COMPLETED", {nonNullable: true}),
   })
 
-  constructor(private todoService: TodoService) {
+  constructor(private todoService: TodoService,
+              private activatedRoute: ActivatedRoute) {
     this.todos$ = combineLatest([
       this.todoService.todos$,
       this.todoFilter.valueChanges.pipe(
@@ -47,10 +49,8 @@ export class TodoComponent {
             return true; // Return true as the default case
           });
         });
-
       })
     )
-    this.todoService.fetchTodos()
   }
 
   toggleCompleted(todo: Todo) {

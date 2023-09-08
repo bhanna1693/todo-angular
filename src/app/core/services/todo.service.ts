@@ -1,5 +1,5 @@
 import {Injectable} from '@angular/core';
-import {BehaviorSubject, catchError, Observable, of, throwError} from "rxjs";
+import {BehaviorSubject, catchError, Observable, of, tap, throwError} from "rxjs";
 import {FormControl} from "@angular/forms";
 import {HttpClient} from "@angular/common/http";
 
@@ -25,26 +25,27 @@ export class TodoService {
   }
 
   fetchTodos() {
-    this.http.get<Todo[]>("https://jsonplaceholder.typicode.com/todos?userId=1")
+    return this.http.get<Todo[]>("https://jsonplaceholder.typicode.com/todos?userId=1")
       .pipe(
         catchError(err => {
           console.error("ERROR", err)
           return of<Todo[]>([])
         }),
-      ).subscribe((todos) => this._todos$.next(todos))
+        tap((todos) => this._todos$.next(todos))
+      )
   }
 
   addTodo(todo: Todo) {
     const optimisticTodo = this.optimisticallyAddTodo(todo);
 
-    this.postTodo(todo, optimisticTodo.id)
+    this.postTodo(todo, optimisticTodo.id).subscribe()
   }
 
   updateTodo(todo: Todo) {
     const oldTodo = this.getTodo(todo.id)!
     this.updateCurrentTodos(oldTodo.id, todo)
 
-    this.postUpdatedTodo(todo, oldTodo)
+    this.postUpdatedTodo(todo, oldTodo).subscribe()
   }
 
   private optimisticallyAddTodo(todo: Todo) {
@@ -55,7 +56,7 @@ export class TodoService {
   }
 
   private postTodo(todo: Todo, todoIdentifier: number) {
-    this.http.post<Todo>("https://jsonplaceholder.typicode.com/todos?userId=1", {
+    return this.http.post<Todo>("https://jsonplaceholder.typicode.com/todos?userId=1", {
       body: todo
     })
       .pipe(
@@ -64,9 +65,8 @@ export class TodoService {
           this.removeCurrentTodo(todoIdentifier)
           return throwError(() => err)
         }),
-      ).subscribe((updatedTodo) => {
-      this.updateCurrentTodos(todoIdentifier, todo);
-    })
+        tap((updatedTodo) => this.updateCurrentTodos(todoIdentifier, todo))
+      )
   }
 
   private updateCurrentTodos(todoIdentifier: number, updatedTodo: Todo) {
@@ -93,7 +93,7 @@ export class TodoService {
   }
 
   private postUpdatedTodo(todo: Todo, oldTodo: Todo) {
-    this.http.post<Todo>("https://jsonplaceholder.typicode.com/todos?userId=1", {
+    return this.http.post<Todo>("https://jsonplaceholder.typicode.com/todos?userId=1", {
       body: todo
     }).pipe(
       catchError((err) => {
@@ -101,10 +101,8 @@ export class TodoService {
         this.updateCurrentTodos(oldTodo.id, oldTodo)
         return throwError(() => err)
       }),
-    ).subscribe((updatedTodo) => {
-      this.updateCurrentTodos(todo.id, todo);
-    })
-
+      tap((updatedTodo) => this.updateCurrentTodos(todo.id, todo))
+    )
   }
 
   private getTodo(id: number) {
